@@ -118,6 +118,14 @@ class IsolationPlayer:
         self.time_left = None
         self.TIMER_THRESHOLD = timeout
 
+    def terminal_test(self, game, depth):
+        """ Return True if the game is over for the active player
+        or Depth Limit is reached, and False otherwise.
+        """
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+        return (not bool(game.get_legal_moves())) or (depth == 0)
+
 
 class MinimaxPlayer(IsolationPlayer):
     """Game-playing agent that chooses a move using depth-limited minimax
@@ -209,14 +217,6 @@ class MinimaxPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
-        def terminal_test(game, depth):
-            """ Return True if the game is over for the active player
-            or Depth Limit is reached, and False otherwise.
-            """
-            if self.time_left() < self.TIMER_THRESHOLD:
-                raise SearchTimeout()
-            return (not bool(game.get_legal_moves())) or (depth == 0)
-
         def min_value(game, depth):
             """ Return the value for a win if the game is over,
             otherwise return the minimum value over all legal child
@@ -224,7 +224,7 @@ class MinimaxPlayer(IsolationPlayer):
             """
             #if self.time_left() < self.TIMER_THRESHOLD:
             #    raise SearchTimeout()
-            if terminal_test(game, depth-1):
+            if self.terminal_test(game, depth-1):
                 return self.score(game, self)
             v = float("inf")
             for m in game.get_legal_moves():
@@ -238,7 +238,7 @@ class MinimaxPlayer(IsolationPlayer):
             """
             #if self.time_left() < self.TIMER_THRESHOLD:
             #    raise SearchTimeout()
-            if terminal_test(game, depth-1):
+            if self.terminal_test(game, depth-1):
                 return self.score(game, self)
             v = float("-inf")
             for m in game.get_legal_moves():
@@ -359,14 +359,6 @@ class AlphaBetaPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
-        def ab_terminal_test(game, depth):
-            """ Return True if the game is over for the active player
-            or Depth Limit is reached, and False otherwise.
-            """
-            if self.time_left() < self.TIMER_THRESHOLD:
-                raise SearchTimeout()
-            return (not bool(game.get_legal_moves())) or (depth == 0)
-
         def ab_min_value(game, depth, alpha, beta):
             """ Return the value for a win if the game is over,
             otherwise return the minimum value over all legal child
@@ -374,7 +366,7 @@ class AlphaBetaPlayer(IsolationPlayer):
             """
             #if self.time_left() < self.TIMER_THRESHOLD:
             #    raise SearchTimeout()
-            if ab_terminal_test(game, depth-1):
+            if self.terminal_test(game, depth-1):
                 return self.score(game, self)
             v = float("inf")
             for m in game.get_legal_moves():
@@ -391,7 +383,7 @@ class AlphaBetaPlayer(IsolationPlayer):
             """
             #if self.time_left() < self.TIMER_THRESHOLD:
             #    raise SearchTimeout()
-            if ab_terminal_test(game, depth-1):
+            if self.terminal_test(game, depth-1):
                 return self.score(game, self)
             v = float("-inf")
             for m in game.get_legal_moves():
