@@ -2,7 +2,7 @@
 test your agent's strength against a set of known agents using tournament.py
 and include the results in your report.
 """
-import random
+import random, math
 
 
 class SearchTimeout(Exception):
@@ -34,8 +34,15 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    return float(own_moves - 2*opp_moves)
 
 
 def custom_score_2(game, player):
@@ -60,8 +67,15 @@ def custom_score_2(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    return float(own_moves - 3*opp_moves)
 
 
 def custom_score_3(game, player):
@@ -86,8 +100,17 @@ def custom_score_3(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    if opp_moves:
+        return float((own_moves - opp_moves)/opp_moves)
+    return float(100*(own_moves - opp_moves))
 
 
 class IsolationPlayer:
@@ -309,7 +332,7 @@ class AlphaBetaPlayer(IsolationPlayer):
             best_move = legal_moves[0]
 
         # Implement iterative deepening search
-        for depth in range(24): # max-depth of 24 if start in center position
+        for depth in range(49):
             try: 
                 # The try/except block will automatically catch the exception
                 # raised when the timer is about to expire.
@@ -379,8 +402,9 @@ class AlphaBetaPlayer(IsolationPlayer):
             for m in game.get_legal_moves():
                 v = min(v, ab_max_value(game.forecast_move(m), depth-1, alpha, beta))
                 if v <= alpha:
-                    return v
-                beta = min(beta, v)
+                    return v # prune other leaves
+                else:
+                    beta = min(beta, v)
             return v
 
         def ab_max_value(game, depth, alpha, beta):
@@ -396,8 +420,9 @@ class AlphaBetaPlayer(IsolationPlayer):
             for m in game.get_legal_moves():
                 v = max(v, ab_min_value(game.forecast_move(m), depth-1, alpha, beta))
                 if v >= beta:
-                    return v
-                alpha = max(alpha, v)
+                    return v # prune other leaves
+                else:
+                    alpha = max(alpha, v)
             return v
 
         if self.time_left() < self.TIMER_THRESHOLD:
